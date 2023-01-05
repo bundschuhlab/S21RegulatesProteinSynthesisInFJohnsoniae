@@ -1,24 +1,3 @@
-#!/usr/bin/env python
-
-#This program calculates cumulative histograms of SD free energies for
-#multiple bacterial genomes as well as a histogram of the number of
-#genes with unsually strong SD sequences per organism
-
-#Copyright (C) <2022>  <The Ohio State University>       
-
-#This program is free software: you can redistribute it and/or modify                              
-#it under the terms of the GNU General Public License as published by 
-#the Free Software Foundation, either version 3 of the License, or    
-#(at your option) any later version.                                                                                       
-#This program is distributed in the hope that it will be useful, 
-#but WITHOUT ANY WARRANTY; without even the implied warranty of           
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       
-#GNU General Public License for more details.                                                                             
-
-#You should have received a copy of the GNU General Public License 
-#along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-
 #
 # import necessary libraries
 #
@@ -53,7 +32,7 @@ minbin=-6
 maxbin=-1
 offsetbins=10
 maxexcess=6
-plot_histograms=True
+plot_histograms=False
 #
 # initialize the overall histogram
 #
@@ -184,4 +163,38 @@ ax.xaxis.set_ticks(range(maxexcess+1))
 ax.xaxis.set_major_formatter(mticker.FuncFormatter(update_ticks))
 plt.savefig('ExcessTIRFreeEnergyHistograms.png')
 plt.show()
-
+#
+# plot the same data as a regular 2D plot per referee 1's request
+#
+fig = plt.figure()
+ax = fig.add_subplot()
+colors = cmap(np.linspace(0,1,offsetbins))
+linestyles = [(0,()), # solid 
+              (0, (5, 1)), # densely dashed
+              (0, (3, 1, 1, 1, 1, 1)), # densely dashdotdotted
+              (0, (3, 5, 1, 5, 1, 5)), # dashdotdotted
+              (0, (1, 1)), # densely dotted
+              (0, (5, 10)), # loosely dashed
+              (0, (5, 5)), # dashed
+              (0, (3, 10, 1, 10)), # loosely dashdotted
+              (0, (3, 5, 1, 5)), # dashdotted
+              (0, (3, 1, 1, 1)), # densely dashdotted
+              (0, (1, 5)), # dotted
+              (0, (3, 10, 1, 10, 1, 10)), # loosely dashdotdotted
+              (0, (1, 10)) # loosely dotted
+             ]
+for i in range(offsetbins-1,-1,-1):
+    ax.plot(range(maxexcess+1),excess_genes[i,:],label='>' + str(offsetbins-i-1) + ' kcal/mol', color=colors[i], linestyle=linestyles[(offsetbins-1-i) % 13], linewidth=2)
+ax.set_xlabel('number of genes',**csfont,fontsize=16)
+ax.set_ylabel('number of species',**csfont,fontsize=16)
+ax.xaxis.set_ticks(range(maxexcess+1))
+ax.xaxis.set_major_formatter(mticker.FuncFormatter(update_ticks))
+ax.tick_params(axis='both',which='major',width=2,length=10,labelsize=tick_label_size)
+ax.spines['top'].set_linewidth(2)
+ax.spines['bottom'].set_linewidth(2)
+ax.spines['left'].set_linewidth(2)
+ax.spines['right'].set_linewidth(2)
+ax.legend(prop={'family': 'Arial', 'size':14})
+plt.tight_layout()
+plt.savefig('ExcessTIRFreeEnergyHistograms2D.png')
+plt.show()
